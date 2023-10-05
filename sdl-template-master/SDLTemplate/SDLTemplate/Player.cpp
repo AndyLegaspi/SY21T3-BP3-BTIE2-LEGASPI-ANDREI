@@ -86,7 +86,7 @@ void Player::update()
 		Bullet* bullet = new Bullet(x + width - 5, y + height/2 - 4, 1, 0, 10);
 		bullets.push_back(bullet);
 		getScene()->addGameObject(bullet);
-		bullet->start();
+		
 
 		currentReloadTime = reloadTime;
 	}
@@ -122,4 +122,14 @@ void Player::update()
 void Player::draw()
 {
 	blit(texture, x, y);
+}
+
+int Player::getPosistionX()
+{
+	return x;
+}
+
+int Player::getPositionY()
+{
+	return y;
 }
