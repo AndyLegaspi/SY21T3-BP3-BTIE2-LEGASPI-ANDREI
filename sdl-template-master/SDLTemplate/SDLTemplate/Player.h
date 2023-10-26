@@ -17,9 +17,15 @@ public:
 
 	int getPosistionX();
 	int getPositionY();
+	int getWidth();
+	int getHeight();
+	bool getIsAlive();
+	void doDeath();
 private:
 	SDL_Texture* texture;
+	SDL_Texture* deathTexture;
 	Mix_Chunk* sound;
+	Mix_Chunk* sound1;
 
 	int x;
 	int y;
@@ -32,6 +38,8 @@ private:
 	float currentReloadTime;
 	float sReloadTime;
 	float sCurrentReloadTime;
+	bool isAlive;
+	bool isHit;
 
 	std::vector<Bullet*> bullets;
 };
