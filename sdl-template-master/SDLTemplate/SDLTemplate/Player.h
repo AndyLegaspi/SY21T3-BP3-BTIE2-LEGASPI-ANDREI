@@ -21,6 +21,8 @@ public:
 	int getHeight();
 	bool getIsAlive();
 	void doDeath();
+	void setupPowerUp(int level);
+	void DoShootingLogic();
 private:
 	SDL_Texture* texture;
 	SDL_Texture* deathTexture;
@@ -40,6 +42,7 @@ private:
 	float sCurrentReloadTime;
 	bool isAlive;
 	bool isHit;
+	int PowerUpLevel;
 
 	std::vector<Bullet*> bullets;
 };

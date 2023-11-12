@@ -20,6 +20,7 @@ public:
     void draw();
 	void setPlayerTarget(Player* player);
 	void setPosition(int xPos, int yPos);
+	void setDirectionX(int dirX);
 
 	int getPositionX();
 	int getPositionY();
@@ -41,7 +42,7 @@ private:
 	int width;
 	int height;
 	float directionX;
-	float direrctionY;
+	float directionY;
 	float speed;
 
 	float reloadTime;

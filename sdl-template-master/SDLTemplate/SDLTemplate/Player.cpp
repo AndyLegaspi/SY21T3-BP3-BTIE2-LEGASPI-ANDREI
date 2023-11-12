@@ -17,8 +17,8 @@ void Player::start()
 	isAlive = true;
 	isHit = false;
 
-	x = 100;
-	y = 100;
+	x = SCREEN_WIDTH / 2 - 20;
+	y = SCREEN_HEIGHT / 2 + 250;
 	width = 0;
 	height = 0;
 	speed = 3.5;
@@ -41,7 +41,7 @@ void Player::update()
 {
 	// Memory Managing
 	for (int i = 0; i < bullets.size(); i++) {
-		if (bullets[i]->getPositionX() > SCREEN_WIDTH) {
+		if (bullets[i]->getPositionX() > SCREEN_HEIGHT) {
 			Bullet* bulletToErase = bullets[i];
 			bullets.erase(bullets.begin() + i);
 			delete bulletToErase;
@@ -101,11 +101,8 @@ void Player::update()
 
 	if (app.keyboard[SDL_SCANCODE_F] && currentReloadTime == 0) {
 		SoundManager::playSound(sound);
-		Bullet* bullet = new Bullet(x + width - 5, y + height/2 - 4, 1, 0, 10, Side::PLAYER_SIDE);
-		bullets.push_back(bullet);
-		getScene()->addGameObject(bullet);
 		
-
+		DoShootingLogic();
 		currentReloadTime = reloadTime;
 	}
 
@@ -114,8 +111,8 @@ void Player::update()
 
 	if (app.keyboard[SDL_SCANCODE_G] && sCurrentReloadTime == 0) {
 		SoundManager::playSound(sound);
-		Bullet* bullet = new Bullet(x + width - 45, y + height - 48, 1, 0, 10, Side::PLAYER_SIDE);
-		Bullet* bullet2 = new Bullet(x + width - 45, y + height - 6, 1, 0, 10, Side::PLAYER_SIDE);
+		Bullet* bullet = new Bullet(x - 12 + width / 2 + 35, y, 0, -1, 10, Side::PLAYER_SIDE);
+		Bullet* bullet2 = new Bullet(x - 12 + width / 2 - 35, y, 0, -1, 10, Side::PLAYER_SIDE);
 		bullets.push_back(bullet);
 		bullets.push_back(bullet2);
 		getScene()->addGameObject(bullet);
@@ -129,11 +126,8 @@ void Player::update()
 
 void Player::draw()
 {
-	//if (isHit)
-		//blit(deathTexture, x, y);
-
 	if (!isAlive) return;
-	blit(texture, x, y);
+	blitRotate(texture, x, y, 270);
 }
 
 int Player::getPosistionX()
@@ -166,4 +160,42 @@ void Player::doDeath()
 {
 	isAlive = false;
 	isHit = true;
+}
+
+void Player::setupPowerUp(int level)
+{
+	PowerUpLevel = level;
+}
+
+void Player::DoShootingLogic()
+{
+	if (PowerUpLevel == 0)
+	{
+		Bullet* bullet = new Bullet(x - 12 + width / 2, y, 0, -1, 10, Side::PLAYER_SIDE);
+		bullets.push_back(bullet);
+		getScene()->addGameObject(bullet);
+	}
+
+	else if (PowerUpLevel >= 1)
+	{
+		float tempPowerup = 0;
+		float tempPowerup2 = 0;
+
+		for (int i = 0; i < PowerUpLevel; i++)
+		{
+			tempPowerup += .12;
+			Bullet* bullet = new Bullet(x - 12 + width / 2, y, tempPowerup, -1, 10, Side::PLAYER_SIDE);
+			bullets.push_back(bullet);
+			getScene()->addGameObject(bullet);
+
+		}
+		for (int i = -PowerUpLevel; i < 0; i++)
+		{
+			tempPowerup2 += .12;
+			Bullet* bullet = new Bullet(x - 12 + width / 2, y, -tempPowerup2, -1, 10, Side::PLAYER_SIDE);
+			bullets.push_back(bullet);
+			getScene()->addGameObject(bullet);
+
+		}
+	}
 }

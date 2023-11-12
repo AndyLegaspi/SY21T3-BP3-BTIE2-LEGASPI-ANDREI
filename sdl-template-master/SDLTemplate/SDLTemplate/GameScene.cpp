@@ -19,14 +19,14 @@ GameScene::~GameScene()
 void GameScene::start()
 {
 	Scene::start();
-	// Initialize any scene logic here
-	//background = loadTexture("gfx/background.png");
-	//SDL_QueryTexture(background, NULL, NULL, &bwidth, &bheight);
 
 	initFonts();
 
 	currSpawnTimer = 300;
 	spawnTime = 300;
+
+	currentPowerUpTimer = 300;
+	powerUpTimer = 300;
 
 	currExplTimer = 5;
 	explosionTimer = 5;
@@ -54,15 +54,24 @@ void GameScene::update()
 	checkSpawn();
 	collisionCheck();
 	memoryManage();
+	createPowerUps();
 }
 
 void GameScene::spawn()
 {
-	enemy = new Enemy();
+	int randomNum = rand() % 2;
+	Enemy* enemy = new Enemy();
 	this->addGameObject(enemy);
 	enemy->setPlayerTarget(player);
 
-	enemy->setPosition(1350, 400 + (rand() % 300));
+	enemy->setPosition((rand() % SCREEN_WIDTH + 1), -100);
+	if (randomNum == 0) {
+		enemy->setDirectionX(1);
+	}
+	else {
+		enemy->setDirectionX(-1);
+	}
+
 	spawnedEnemies.push_back(enemy);
 }
 
@@ -103,6 +112,7 @@ void GameScene::collisionCheck()
 	for (int i = 0; i < objects.size(); i++) {
 		//cast to bullet
 		Bullet* bullet = dynamic_cast<Bullet*>(objects[i]);
+		PowerUps* powerUps = dynamic_cast<PowerUps*> (objects[i]);
 		//null check
 		if (bullet != NULL) {
 			//enemy bullet hits player
@@ -143,6 +153,25 @@ void GameScene::collisionCheck()
 				}
 			}
 		}
+
+		if (powerUps != NULL)
+		{
+			for (int i = 0; i < spawnedPowerUps.size(); i++)
+			{
+				PowerUps* currentPowerUp = spawnedPowerUps[i];
+
+				int collision = checkCollision(
+					player->getPosistionX(), player->getPositionY(), player->getWidth(), player->getHeight(),
+					currentPowerUp->getPositionX(), currentPowerUp->getPositionY(), currentPowerUp->getWidth(), currentPowerUp->getHeight()
+				);
+				if (collision == 1)
+				{
+					powerUpCount++;
+					player->setupPowerUp(powerUpCount);
+					deleteClaimedPowerUps(currentPowerUp);
+				}
+			}
+		}
 	}
 }
 
@@ -162,4 +191,41 @@ void GameScene::BackgroundDisplay()
 {
 	background = new Background();
 	this->addGameObject(background);
+}
+
+void GameScene::deleteClaimedPowerUps(PowerUps* powerUp)
+{
+	int index = -1;
+	for (int i = 0; i < spawnedPowerUps.size(); i++)
+	{
+		if (powerUp == spawnedPowerUps[i])
+		{
+			index = i;
+			break;
+		}
+	}
+	if (index != -1)
+	{
+		spawnedPowerUps.erase(spawnedPowerUps.begin() + index);
+		delete powerUp;
+	}
+}
+
+void GameScene::createPowerUps()
+{
+	if (currentPowerUpTimer > 0)
+		currentPowerUpTimer--;
+
+	if (currentPowerUpTimer == 0 && player->getIsAlive() == true)
+	{
+		SpawnPowerUps();
+		currentPowerUpTimer = spawnTime;
+	}
+}
+
+void GameScene::SpawnPowerUps()
+{
+	PowerUps* powerUp = new PowerUps(rand() % SCREEN_WIDTH + 1, -100, 0, 1, 2);
+	this->addGameObject(powerUp);
+	spawnedPowerUps.push_back(powerUp);
 }

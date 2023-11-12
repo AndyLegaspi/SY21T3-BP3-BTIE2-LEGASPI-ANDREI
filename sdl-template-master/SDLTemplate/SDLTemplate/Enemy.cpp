@@ -15,7 +15,7 @@ void Enemy::start()
 	texture2 = loadTexture("gfx/explosion.png");
 
 	directionX = -1;
-	direrctionY = 1;
+	directionY = 1;
 	width = 0;
 	height = 0;
 	speed = 1.5;
@@ -42,13 +42,20 @@ void Enemy::update()
 	if (!isDead) {
 
 		x += directionX * speed;
-		y += direrctionY * speed;
+		y += directionY * speed;
 
 		if (currDirectionChangeTime > 0)
 			currDirectionChangeTime--;
 
+		if (x < 0) {
+			directionX = -directionX;
+		}
+		else if (x > SCREEN_WIDTH) {
+			directionX = -directionX;
+		}
+
 		if (currDirectionChangeTime == 0) {
-			direrctionY = -direrctionY;
+			directionX = -directionX;
 			currDirectionChangeTime = directionChangeTime;
 		}
 
@@ -85,7 +92,7 @@ void Enemy::update()
 void Enemy::draw()
 {
 	if(!isDead)
-		blit(texture, x, y);
+		blitRotate(texture, x, y, 270);
 
 	if (isDead)
 		blit(texture2, x, y);
@@ -100,6 +107,11 @@ void Enemy::setPosition(int xPos, int yPos)
 {
 	this->x = xPos;
 	this->y = yPos;
+}
+
+void Enemy::setDirectionX(int dirX)
+{
+	this->directionX = dirX;
 }
 
 int Enemy::getPositionX()
