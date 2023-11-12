@@ -5,6 +5,7 @@
 #include "Enemy.h"
 #include <vector>
 #include "text.h"
+#include "Background.h"
 
 class GameScene : public Scene
 {
@@ -18,6 +19,11 @@ private:
 	Player* player;
 	Enemy* enemy;
 
+	Background* background;
+
+	float explosionTimer;
+	float currExplTimer;
+
 	float spawnTime;
 	float currSpawnTimer;
 	std::vector<Enemy*> spawnedEnemies;
@@ -28,11 +34,8 @@ private:
 	void checkSpawn();
 	void collisionCheck();
 	void memoryManage();
+	void BackgroundDisplay();
 
 	int points;
-
-	SDL_Texture* background;
-	int bwidth;
-	int bheight;
 };
 

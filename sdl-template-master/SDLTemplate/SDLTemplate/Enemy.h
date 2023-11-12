@@ -25,9 +25,15 @@ public:
 	int getPositionY();
 	int getWidth();
 	int getHeight();
+
+	void doDeath();
+	
+
 private:
 	SDL_Texture* texture;
+	SDL_Texture* texture2;
 	Mix_Chunk* sound;
+	Mix_Chunk* sound2;
 	Player* playerTarget;
 
 	int x;
@@ -46,5 +52,7 @@ private:
 	float currDirectionChangeTime;
 
 	std::vector<Bullet*> bullets;
+
+	bool isDead;
 };
 

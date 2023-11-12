@@ -2,6 +2,8 @@
 
 GameScene::GameScene()
 {
+	BackgroundDisplay();
+
 	// Register and add game objects on constructor
 	player = new Player();
 	this->addGameObject(player);
@@ -18,15 +20,16 @@ void GameScene::start()
 {
 	Scene::start();
 	// Initialize any scene logic here
-	background = loadTexture("gfx/background.png");
-	bwidth = 0;
-	bheight = 0;
-	SDL_QueryTexture(background, NULL, NULL, &bwidth, &bheight);
+	//background = loadTexture("gfx/background.png");
+	//SDL_QueryTexture(background, NULL, NULL, &bwidth, &bheight);
 
 	initFonts();
 
 	currSpawnTimer = 300;
 	spawnTime = 300;
+
+	currExplTimer = 5;
+	explosionTimer = 5;
 
 	for (int i = 0; i < 3; i++) {
 		spawn();
@@ -35,7 +38,7 @@ void GameScene::start()
 
 void GameScene::draw()
 {
-	blitScale(background, 0, 0, &bwidth, &bheight, 3);
+	//blitScale(background, 0, 0, &bwidth, &bheight, 3);
 	Scene::draw();
 	drawText(110, 20, 255, 255, 255, TEXT_CENTER, "POINTS: %03d", points);
 
@@ -126,7 +129,14 @@ void GameScene::collisionCheck()
 					);
 
 					if (collision == 1) {
-						deSpawn(currentEnemy);
+						currentEnemy->doDeath();
+						if (currExplTimer >= 0) {
+							currExplTimer--;
+						}
+						if (currExplTimer <= 0) {
+							deSpawn(currentEnemy);
+							currExplTimer = explosionTimer;
+						}
 						points++;
 						break;
 					}
@@ -146,4 +156,10 @@ void GameScene::memoryManage()
 			break;
 		}
 	}
+}
+
+void GameScene::BackgroundDisplay()
+{
+	background = new Background();
+	this->addGameObject(background);
 }

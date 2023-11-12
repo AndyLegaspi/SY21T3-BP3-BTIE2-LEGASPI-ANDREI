@@ -12,12 +12,15 @@ Enemy::~Enemy()
 void Enemy::start()
 {
 	texture = loadTexture("gfx/enemy.png");
+	texture2 = loadTexture("gfx/explosion.png");
 
 	directionX = -1;
 	direrctionY = 1;
 	width = 0;
 	height = 0;
 	speed = 1.5;
+
+	isDead = false;
 
 	reloadTime = 60;
 	currentReloadTime = 0;
@@ -29,54 +32,63 @@ void Enemy::start()
 
 	sound = SoundManager::loadSound("sound/334227__jradcoolness__laser.ogg");
 	sound->volume = 16;
+	sound2 = SoundManager::loadSound("sound/245372__quaker540__hq-explosion.ogg");
+	sound2->volume = 1;
 }
 
 void Enemy::update()
 {
 	//Direction
-	x += directionX * speed;
-	y += direrctionY * speed;
+	if (!isDead) {
 
-	if (currDirectionChangeTime > 0)
-		currDirectionChangeTime--;
+		x += directionX * speed;
+		y += direrctionY * speed;
 
-	if (currDirectionChangeTime == 0) {
-		direrctionY = -direrctionY;
-		currDirectionChangeTime = directionChangeTime;
-	}
+		if (currDirectionChangeTime > 0)
+			currDirectionChangeTime--;
 
-	//Auto Firing
-	if (currentReloadTime > 0)
-		currentReloadTime--;
+		if (currDirectionChangeTime == 0) {
+			direrctionY = -direrctionY;
+			currDirectionChangeTime = directionChangeTime;
+		}
 
-	if (currentReloadTime == 0) {
-		float dx = -1;
-		float dy = 0;
+		//Auto Firing
+		if (currentReloadTime > 0)
+			currentReloadTime--;
 
-		calcSlope(playerTarget->getPosistionX(), playerTarget->getPositionY(), x, y, &dx,&dy);
+		if (currentReloadTime == 0) {
+			float dx = -1;
+			float dy = 0;
 
-		SoundManager::playSound(sound);
-		Bullet* bullet = new Bullet(x + width - 5, y + height / 2 - 4, dx, dy, 10, Side::ENEMY_SIDE);
-		bullets.push_back(bullet);
-		getScene()->addGameObject(bullet);
+			calcSlope(playerTarget->getPosistionX(), playerTarget->getPositionY(), x, y, &dx, &dy);
 
-		currentReloadTime = reloadTime;
-	}
+			SoundManager::playSound(sound);
+			Bullet* bullet = new Bullet(x + width - 5, y + height / 2 - 4, dx, dy, 10, Side::ENEMY_SIDE);
+			bullets.push_back(bullet);
+			getScene()->addGameObject(bullet);
 
-	// Memory Managing
-	for (int i = 0; i < bullets.size(); i++) {
-		if (bullets[i]->getPositionX() < 0 || bullets[i]->getPositionY() < 0 || bullets[i]->getPositionY() > 900) {
-			Bullet* bulletToErase = bullets[i];
-			bullets.erase(bullets.begin() + i);
-			delete bulletToErase;
-			break;
+			currentReloadTime = reloadTime;
+		}
+
+		// Memory Managing
+		for (int i = 0; i < bullets.size(); i++) {
+			if (bullets[i]->getPositionX() < 0 || bullets[i]->getPositionY() < 0 || bullets[i]->getPositionY() > 900) {
+				Bullet* bulletToErase = bullets[i];
+				bullets.erase(bullets.begin() + i);
+				delete bulletToErase;
+				break;
+			}
 		}
 	}
 }
 
 void Enemy::draw()
 {
-	blit(texture, x, y);
+	if(!isDead)
+		blit(texture, x, y);
+
+	if (isDead)
+		blit(texture2, x, y);
 }
 
 void Enemy::setPlayerTarget(Player* player)
@@ -109,3 +121,11 @@ int Enemy::getHeight()
 {
 	return height;
 }
+
+void Enemy::doDeath()
+{
+	isDead = true;
+	SoundManager::playSound(sound2);
+}
+
+
