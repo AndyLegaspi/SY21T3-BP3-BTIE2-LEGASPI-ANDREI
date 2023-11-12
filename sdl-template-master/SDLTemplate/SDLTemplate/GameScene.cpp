@@ -179,9 +179,22 @@ void GameScene::memoryManage()
 {
 	for (int i = 0; i < spawnedEnemies.size(); i++) {
 		if (spawnedEnemies[i]->getPositionY() < -150 || spawnedEnemies[i]->getPositionX() < -150) {
+			std::cout << "enemy deleted" << std::endl;
 			Enemy* enemies = spawnedEnemies[i];
 			spawnedEnemies.erase(spawnedEnemies.begin() + i);
 			delete enemies;
+			break;
+		}
+	}
+
+	for (int i = 0; i < spawnedPowerUps.size(); i++)
+	{
+		if (spawnedPowerUps[i]->getPositionY() > SCREEN_HEIGHT)
+		{
+			std::cout << "powerup deleted" << std::endl;
+			PowerUps* powerUpsToDelete = spawnedPowerUps[i];
+			spawnedPowerUps.erase(spawnedPowerUps.begin() + i);
+			delete powerUpsToDelete;
 			break;
 		}
 	}
