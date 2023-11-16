@@ -9,6 +9,13 @@ GameScene::GameScene()
 	this->addGameObject(player);
 
 	points = 0;
+	wave = 0;
+	waveCount = 5;
+	level = 1;
+
+	bossCondition = 0;
+	bossHP = 50;
+	bossHPAdd = bossHP;
 }
 
 GameScene::~GameScene()
@@ -31,9 +38,15 @@ void GameScene::start()
 	currExplTimer = 5;
 	explosionTimer = 5;
 
+	bossSpawnTimer = 300;
+	bossTimerReset = bossSpawnTimer;
+
 	for (int i = 0; i < 3; i++) {
 		spawn();
 	}
+
+	sound = SoundManager::loadSound("sound/245372__quaker540__hq-explosion.ogg");
+	sound->volume = 1;
 }
 
 void GameScene::draw()
@@ -44,6 +57,10 @@ void GameScene::draw()
 
 	if (player->getIsAlive() == false) {
 		drawText(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 20, 255, 255, 255, TEXT_CENTER, "GAME OVER");
+	}
+
+	if (bossCondition == 1){
+		drawText(SCREEN_WIDTH / 2, 200, 255, 255, 255, TEXT_CENTER, "BOSS HEALTH: %03d", bossHP);
 	}
 }
 
@@ -95,16 +112,40 @@ void GameScene::deSpawn(Enemy* enemy)
 
 void GameScene::checkSpawn()
 {
-	if (currSpawnTimer > 0)
-		currSpawnTimer--;
+	if (wave < waveCount && player->getIsAlive() == true) {
+		if (currSpawnTimer > 0)
+			currSpawnTimer--;
 
-	if (currSpawnTimer <= 0) {
-		currSpawnTimer = spawnTime;
+		if (currSpawnTimer <= 0) {
+			currSpawnTimer = spawnTime;
 
-		for (int i = 0; i < 3; i++) {
-			spawn();
+			for (int i = 0; i < 3; i++) {
+				spawn();
+			}
+			wave += 1;
+		}
+		tempWave = wave;
+	}
+	else if (tempWave == waveCount){
+
+		if (bossSpawnTimer > 0)
+			bossSpawnTimer--;
+
+		if (bossSpawnTimer == 0){
+			//player->setupPowerUp(0);
+			powerUpCount = 0;
+			//spawnBoss();
+			tempWave = 0;
+			bossCondition = 1;
 		}
 	}
+}
+
+void GameScene::spawnBoss()
+{
+	Boss* boss = new Boss();
+	this->addGameObject(boss);
+	boss->setPlayerTarget(player);
 }
 
 void GameScene::collisionCheck()
@@ -149,6 +190,34 @@ void GameScene::collisionCheck()
 						}
 						points++;
 						break;
+					}
+				}
+
+				if (bossCondition == 1)
+				{
+					int collision = checkCollision(
+						boss->getPositionX(), boss->getPositionY(), boss->getWidth(), boss->getHeight(),
+						bullet->getPositionX(), bullet->getPositionY(), bullet->getWidth(), bullet->getHeight()
+					);
+					if (collision == 1)
+					{
+						bossHP -= 1;
+						SoundManager::playSound(sound);
+						sound->volume = 1;
+						if (bossHP == 0)
+						{
+							SoundManager::playSound(sound);
+							sound->volume = 1;
+							delete boss;
+							bossSpawnTimer = bossTimerReset;
+							bossCondition = 0;
+							wave = 0;
+							level += 1;
+							bossHPAdd *= 2;
+							bossHP = bossHPAdd;
+							points += 1000;
+							waveCount += 1;
+						}
 					}
 				}
 			}
