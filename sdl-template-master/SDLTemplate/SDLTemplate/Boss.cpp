@@ -110,7 +110,7 @@ void Boss::update()
 void Boss::draw()
 {
 	if(!hasDied)
-		blitRotate(texture, x, y, 180);
+		blitRotate(texture, x, y, 270);
 	else
 		blitRotate(texture2, x, y, 180);
 }

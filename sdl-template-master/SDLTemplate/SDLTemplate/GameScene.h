@@ -46,6 +46,7 @@ private:
 	void spawnBoss();
 
 	void collisionCheck();
+	void checkBossCollision();
 
 	void memoryManage();
 

@@ -43,6 +43,7 @@ void GameScene::start()
 
 	for (int i = 0; i < 3; i++) {
 		spawn();
+		//spawnBoss(); < testing purposes
 	}
 
 	sound = SoundManager::loadSound("sound/245372__quaker540__hq-explosion.ogg");
@@ -72,6 +73,10 @@ void GameScene::update()
 	collisionCheck();
 	memoryManage();
 	createPowerUps();
+
+	if (bossCondition == 1) {
+		checkBossCollision();
+	}
 }
 
 void GameScene::spawn()
@@ -110,6 +115,13 @@ void GameScene::deSpawn(Enemy* enemy)
 
 }
 
+void GameScene::spawnBoss()
+{
+	Boss* boss = new Boss();
+	this->addGameObject(boss);
+	boss->setPlayerTarget(player);
+}
+
 void GameScene::checkSpawn()
 {
 	if (wave < waveCount && player->getIsAlive() == true) {
@@ -126,26 +138,19 @@ void GameScene::checkSpawn()
 		}
 		tempWave = wave;
 	}
-	else if (tempWave == waveCount){
+	else if (tempWave == waveCount) {
 
 		if (bossSpawnTimer > 0)
 			bossSpawnTimer--;
 
-		if (bossSpawnTimer == 0){
-			//player->setupPowerUp(0);
+		if (bossSpawnTimer == 0) {
+			player->setupPowerUp(0);
 			powerUpCount = 0;
-			//spawnBoss();
+			spawnBoss();
 			tempWave = 0;
 			bossCondition = 1;
 		}
 	}
-}
-
-void GameScene::spawnBoss()
-{
-	Boss* boss = new Boss();
-	this->addGameObject(boss);
-	boss->setPlayerTarget(player);
 }
 
 void GameScene::collisionCheck()
@@ -192,34 +197,6 @@ void GameScene::collisionCheck()
 						break;
 					}
 				}
-
-				if (bossCondition == 1)
-				{
-					int collision = checkCollision(
-						boss->getPositionX(), boss->getPositionY(), boss->getWidth(), boss->getHeight(),
-						bullet->getPositionX(), bullet->getPositionY(), bullet->getWidth(), bullet->getHeight()
-					);
-					if (collision == 1)
-					{
-						bossHP -= 1;
-						SoundManager::playSound(sound);
-						sound->volume = 1;
-						if (bossHP == 0)
-						{
-							SoundManager::playSound(sound);
-							sound->volume = 1;
-							delete boss;
-							bossSpawnTimer = bossTimerReset;
-							bossCondition = 0;
-							wave = 0;
-							level += 1;
-							bossHPAdd *= 2;
-							bossHP = bossHPAdd;
-							points += 1000;
-							waveCount += 1;
-						}
-					}
-				}
 			}
 		}
 
@@ -243,6 +220,41 @@ void GameScene::collisionCheck()
 		}
 	}
 }
+
+void GameScene::checkBossCollision()
+{
+	for (int i = 0; i < objects.size(); i++) {
+		Bullet* bullet = dynamic_cast<Bullet*>(objects[i]);
+
+		// <- this breaks the game, boss wont spawn with this collision.
+		// boss will spawn with atk patter, but unkillable.
+
+		/*int collision = checkCollision(
+		boss->getPositionX(), boss->getPositionY(), boss->getWidth(), boss->getHeight(),
+		bullet->getPositionX(), bullet->getPositionY(), bullet->getWidth(), bullet->getHeight()
+		);
+
+		if (collision == 1)
+		{
+			bossHP -= 1;
+			SoundManager::playSound(sound);
+			sound->volume = 1;
+			if (bossHP == 0)
+			{
+				SoundManager::playSound(sound);
+				sound->volume = 1;
+				delete boss;
+				bossSpawnTimer = bossTimerReset;
+				bossCondition = 0;
+				points += 1000;
+				waveCount += 1;
+			}
+		}*/
+		
+	}
+}
+
+
 
 void GameScene::memoryManage()
 {
